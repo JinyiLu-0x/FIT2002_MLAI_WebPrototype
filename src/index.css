@@ -1,0 +1,59 @@
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Roboto:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --color-app: #f5f6f7;
+  --color-surface: #ffffff;
+  --color-sidebar: #fafaf8;
+  --color-mlai-beige: #f5f0e6;
+  --color-ink: #1a1a1a;
+  --color-muted: #667085;
+  --color-line: #d7dde3;
+  --color-navy: #243b53;
+  --color-teal: #3e7c78;
+  --color-accent-mint: #00e6c2;
+  --color-accent-purple: #4b0db3;
+  --color-accent-orange: #ff3d00;
+  --color-accent-yellow: #fefc22;
+  --color-accent-blue: #3537dc;
+  --color-accent-coral: #ff6b3d;
+  --color-cream: #f5f0e6;
+  --color-cream-light: #ffffff;
+  --color-brand-50: #e8f8f4;
+  --color-brand-100: #ccefe7;
+  --color-brand-600: #3e7c78;
+  --color-brand-700: #326762;
+  --color-brand-900: #243b53;
+  --color-status-approved-bg: #e7f6ec;
+  --color-status-approved: #237a45;
+  --color-status-draft-bg: #eef2f6;
+  --color-status-draft: #475467;
+  --color-status-pending-bg: #fff4d6;
+  --color-status-pending: #93621a;
+  --color-status-changes-bg: #fdecdd;
+  --color-status-changes: #b54708;
+  --color-status-error-bg: #fde8e7;
+  --color-status-error: #b42318;
+  --color-status-published-bg: #e8f1fb;
+  --color-status-published: #245b91;
+  --color-status-progress-bg: #f0ecfa;
+  --color-status-progress: #6941a5;
+  --font-display: "Oswald", "Arial Narrow", sans-serif;
+}
+
+@layer base {
+  body {
+    margin: 0;
+    min-width: 320px;
+    background: var(--color-app);
+    color: var(--color-ink);
+    font-family: Roboto, ui-sans-serif, system-ui, sans-serif;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+}

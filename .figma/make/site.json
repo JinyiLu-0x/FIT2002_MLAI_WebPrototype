@@ -1,0 +1,10 @@
+{
+  "description": "This interactive web application provides authorized users and sponsors with secure access to aggregated sponsorship and impact data, enhancing reporting efficiency.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
