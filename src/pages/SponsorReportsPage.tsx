@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { Navigate, useSearchParams } from "react-router";
 import { getActiveDemoAccount } from "../app/demoAuth";
+import { useReportingPeriod } from "../app/reportingPeriod";
+import {
+  getReportCategory,
+  reportPresentation,
+  type ReportCategory,
+} from "../app/reportPresentation";
 
 interface ApprovedReport {
   title: string;
@@ -178,8 +184,10 @@ export default function SponsorReportsPage({
   role: "sponsor" | "partner";
 }) {
   const account = getActiveDemoAccount();
+  const { period } = useReportingPeriod();
   const [searchParams] = useSearchParams();
   const [selectedReport, setSelectedReport] = useState<ApprovedReport | null>(null);
+  const [selectedCategories, setSelectedCategories] = useState<ReportCategory[]>([]);
 
   const reports = account ? (reportsByAccount[account.id] ?? []) : [];
   const requestedReport = searchParams.get("report");
@@ -199,46 +207,174 @@ export default function SponsorReportsPage({
   }
 
   const includedInitiatives = initiativesByAccount[account.id] ?? [];
+  const reportsForPeriod = reports.filter((report) => report.period.startsWith(period));
+  const filteredReports = reportsForPeriod.filter(
+    (report) =>
+      selectedCategories.length === 0 ||
+      selectedCategories.includes(getReportCategory(report.title)),
+  );
+  const selectedReportPresentation = selectedReport
+    ? reportPresentation[getReportCategory(selectedReport.title)]
+    : null;
+  const reportCategories = Object.entries(reportPresentation) as [
+    ReportCategory,
+    (typeof reportPresentation)[ReportCategory],
+  ][];
+
+  function toggleCategory(category: ReportCategory) {
+    setSelectedCategories((current) =>
+      current.includes(category)
+        ? current.filter((item) => item !== category)
+        : [...current, category],
+    );
+  }
 
   return (
     <div className="mx-auto max-w-7xl">
-      <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-        Reports
-      </h1>
-      <p className="mt-1 text-sm leading-5 text-muted">
-        Approved aggregate reports available to {account.organisation}.
-      </p>
-      <div className="mt-6 overflow-hidden rounded-xl border border-line bg-surface shadow-sm">
-        {reports.map((report, index) => (
-          <article
-            key={report.title}
-            className="grid gap-3 border-b border-line p-4 last:border-0 hover:bg-slate-50 lg:grid-cols-[40px_1fr_130px_140px_auto] lg:items-center"
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
+            Reports
+          </h1>
+          <p className="mt-1 text-sm leading-5 text-muted">
+            Approved aggregate reports available to {account.organisation}.
+          </p>
+          <p className="mt-2 text-xs font-medium text-teal">
+            Reporting period: {period}
+          </p>
+        </div>
+
+        <details className="relative">
+          <summary
+            className="relative grid size-10 cursor-pointer list-none place-items-center rounded-full border border-line bg-surface text-ink shadow-sm hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+            aria-label="Filter reports"
           >
-            <span
-              className={`grid size-9 place-items-center rounded-lg text-xs font-semibold text-white ${
-                index === 0 ? "bg-teal" : "bg-accent-purple"
-              }`}
+            <svg
+              viewBox="0 0 24 24"
+              className="size-4.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
             >
-              {String(index + 1).padStart(2, "0")}
-            </span>
-            <div>
-              <h2 className="text-sm font-semibold text-ink">{report.title}</h2>
-              <p className="mt-1 text-xs text-muted">{report.summary}</p>
+              <path d="M4 6h16M7 12h10M10 18h4" />
+            </svg>
+            {selectedCategories.length > 0 && (
+              <span
+                className="absolute top-0 right-0 size-2.5 rounded-full border-2 border-surface bg-accent-purple"
+                aria-hidden="true"
+              />
+            )}
+          </summary>
+          <div className="absolute top-12 right-0 z-20 w-72 rounded-xl border border-line bg-surface p-4 shadow-lg">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-ink">Filter reports</p>
+                <p className="mt-1 text-[11px] text-muted">
+                  Period is controlled from the header.
+                </p>
+              </div>
+              {selectedCategories.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategories([])}
+                  className="text-xs font-medium text-teal hover:underline"
+                >
+                  Clear
+                </button>
+              )}
             </div>
-            <p className="text-xs text-muted">{report.period}</p>
-            <p className="text-xs text-muted">{report.published}</p>
-            <button
-              type="button"
-              onClick={() => setSelectedReport(report)}
-              className="w-full rounded-lg bg-navy px-4 py-2 text-xs font-medium text-white hover:bg-teal sm:w-fit"
+            <div className="mt-4 border-t border-line pt-4">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">
+                Report type
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {reportCategories.map(([category, presentation]) => {
+                  const isSelected = selectedCategories.includes(category);
+
+                  return (
+                    <button
+                      key={category}
+                      type="button"
+                      onClick={() => toggleCategory(category)}
+                      aria-pressed={isSelected}
+                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                        isSelected
+                          ? `${presentation.borderClass} ${presentation.surfaceClass} ${presentation.textClass}`
+                          : "border-line bg-surface text-muted hover:bg-slate-50"
+                      }`}
+                    >
+                      {presentation.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-3 text-[11px] leading-4 text-muted">
+                Select one or more types. With no tags selected, all report types are shown.
+              </p>
+            </div>
+          </div>
+        </details>
+      </div>
+      <div className="mt-6 overflow-hidden rounded-xl border border-line bg-surface shadow-sm">
+        {filteredReports.map((report, index) => {
+          const presentation = reportPresentation[getReportCategory(report.title)];
+
+          return (
+            <article
+              key={report.title}
+              className={`grid gap-3 border-b border-l-4 border-line p-4 last:border-b-0 hover:bg-slate-50 lg:grid-cols-[40px_1fr_130px_140px_auto] lg:items-center ${presentation.borderClass}`}
             >
-              View report
-            </button>
-          </article>
-        ))}
+              <span
+                className={`grid size-9 place-items-center rounded-lg text-xs font-semibold text-white ${presentation.accentClass}`}
+              >
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-sm font-semibold text-ink">{report.title}</h2>
+                  <span
+                    className={`rounded-full px-2 py-1 text-[10px] font-medium ${presentation.surfaceClass} ${presentation.textClass}`}
+                  >
+                    {presentation.label}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-muted">{report.summary}</p>
+              </div>
+              <p className="text-xs text-muted">{report.period}</p>
+              <p className="text-xs text-muted">{report.published}</p>
+              <button
+                type="button"
+                onClick={() => setSelectedReport(report)}
+                className="w-full rounded-lg bg-navy px-4 py-2 text-xs font-medium text-white hover:bg-teal sm:w-fit"
+              >
+                View report
+              </button>
+            </article>
+          );
+        })}
+        {filteredReports.length === 0 && (
+          <div className="px-5 py-10 text-center">
+            <p className="text-sm font-semibold text-ink">No matching reports</p>
+            <p className="mt-1 text-xs leading-5 text-muted">
+              No approved reports match {period} and the selected report types.
+            </p>
+            {selectedCategories.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setSelectedCategories([])}
+                className="mt-4 text-xs font-medium text-teal hover:underline"
+              >
+                Clear report type filters
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
-      {selectedReport && (
+      {selectedReport && selectedReportPresentation && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-navy/55 p-3 sm:p-5">
           <section
             role="dialog"
@@ -248,9 +384,16 @@ export default function SponsorReportsPage({
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-medium text-teal">
-                  Approved report · {selectedReport.period}
-                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-xs font-medium text-teal">
+                    Approved report · {selectedReport.period}
+                  </p>
+                  <span
+                    className={`rounded-full px-2 py-1 text-[10px] font-medium ${selectedReportPresentation.surfaceClass} ${selectedReportPresentation.textClass}`}
+                  >
+                    {selectedReportPresentation.label}
+                  </span>
+                </div>
                 <h2
                   id="external-report-title"
                   className="mt-2 text-2xl font-semibold leading-tight text-ink"

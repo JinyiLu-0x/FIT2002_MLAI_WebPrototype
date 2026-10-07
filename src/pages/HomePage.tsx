@@ -73,7 +73,7 @@ export default function HomePage() {
               <img
                 src="https://images.unsplash.com/photo-1651313950959-9eeef2477f4b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080"
                 alt="A community group gathering outdoors"
-                className="size-full object-cover"
+                className="size-full scale-110 object-cover"
               />
               <div className="absolute inset-0 bg-navy/15" aria-hidden="true" />
               <span className="absolute bottom-4 left-4 rounded-full bg-accent-mint px-3 py-1.5 text-xs font-semibold text-navy">

@@ -2,6 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 import { useReportingPeriod } from "../../app/reportingPeriod";
 import {
+  getReportCategory,
+  reportPresentation,
+} from "../../app/reportPresentation";
+import {
   reportingDashboards,
   sponsorReportingDashboards,
   type DistributionValue,
@@ -796,7 +800,12 @@ export default function ReportingDashboard({
   const selectedReportTitle = selectedInitiative
     ? relatedReportsByInitiative[selectedInitiative.id]
     : undefined;
+  const selectedReportPresentation = selectedReportTitle
+    ? reportPresentation[getReportCategory(selectedReportTitle)]
+    : null;
   const reportsPath = role === "sponsor" ? "/sponsor/reports" : "/partner/reports";
+  const recentReportPresentation =
+    reportPresentation[getReportCategory(recentReport)];
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -912,9 +921,11 @@ export default function ReportingDashboard({
               View all initiatives
             </Link>
           </section>
-          <section className="rounded-2xl border border-accent-blue bg-accent-blue p-5 text-white shadow-sm md:col-span-2 xl:col-span-1">
+          <section
+            className={`rounded-2xl border p-5 text-white shadow-sm md:col-span-2 xl:col-span-1 ${recentReportPresentation.borderClass} ${recentReportPresentation.accentClass}`}
+          >
             <p className="text-xs font-medium text-white/65">
-              Recent report
+              Recent report · {recentReportPresentation.label}
             </p>
             <h2 className="mt-3 text-xl font-semibold leading-tight text-white">
               {recentReport}
@@ -1062,11 +1073,22 @@ export default function ReportingDashboard({
                 No identifiable participant records are included.
               </p>
             </div>
-            <div className="mt-4 rounded-xl border border-line bg-surface p-4">
+            <div
+              className={`mt-4 rounded-xl border border-l-4 bg-surface p-4 ${
+                selectedReportPresentation?.borderClass ?? "border-line"
+              }`}
+            >
               {selectedReportTitle ? (
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <p className="text-xs font-semibold text-ink">Related approved report</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-xs font-semibold text-ink">Related approved report</p>
+                      <span
+                        className={`rounded-full px-2 py-1 text-[10px] font-medium ${selectedReportPresentation?.surfaceClass} ${selectedReportPresentation?.textClass}`}
+                      >
+                        {selectedReportPresentation?.label}
+                      </span>
+                    </div>
                     <p className="mt-1 text-xs text-muted">{selectedReportTitle}</p>
                   </div>
                   <Link
