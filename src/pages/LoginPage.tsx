@@ -44,7 +44,7 @@ export default function LoginPage() {
 
   return (
     <div className="bg-app lg:min-h-[calc(100vh-4rem)]">
-      <div className="mx-auto grid w-full max-w-6xl gap-6 px-5 py-10 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:py-5">
+      <div className="mx-auto grid w-full max-w-6xl gap-6 px-5 py-10 sm:px-8 lg:min-h-[calc(100vh-4rem)] lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:py-5">
         <figure className="relative min-h-80 overflow-hidden rounded-xl border border-line bg-brand-50 lg:h-[44rem] lg:min-h-0">
           <img
             src="https://images.unsplash.com/photo-1651313950959-9eeef2477f4b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080"
@@ -145,7 +145,7 @@ export default function LoginPage() {
               onClick={() => setShowDemoSelector(true)}
               className="w-full rounded-lg border border-line bg-surface px-5 py-3 text-sm font-medium text-ink hover:bg-slate-50"
             >
-              Explore demo portal /
+              Explore demo portal
             </button>
             <p className="mt-2 text-xs font-medium text-ink/55">
               Select an authorised sample account to review the reporting portal.

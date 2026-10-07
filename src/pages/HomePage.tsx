@@ -32,7 +32,7 @@ export default function HomePage() {
           className="absolute top-0 right-0 hidden h-full w-[32%] border-l border-ink/20 bg-accent-mint lg:block"
           aria-hidden="true"
         />
-        <div className="relative mx-auto grid w-full max-w-7xl gap-12 px-5 py-20 sm:px-8 sm:py-24 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+        <div className="relative mx-auto grid w-full max-w-7xl gap-12 px-5 py-20 sm:px-8 sm:py-24 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
           <div>
             <div className="mb-5">
               <BrandMark />
@@ -55,10 +55,10 @@ export default function HomePage() {
               </Link>
               <Link
                 to="/login?demo=1"
-                className="rounded-full border border-ink bg-surface px-6 py-3 text-sm font-medium text-ink hover:bg-brand-50"
-              >
-                Explore demo portal /
-              </Link>
+              className="rounded-full border border-ink bg-surface px-6 py-3 text-sm font-medium text-ink hover:bg-brand-50"
+            >
+                Explore demo portal
+            </Link>
               <a href="#about" className="px-2 py-3 text-sm font-medium text-teal hover:underline">
                 Learn more
               </a>
@@ -69,7 +69,7 @@ export default function HomePage() {
             <span className="absolute top-4 right-4 z-10 grid size-11 rotate-6 place-items-center rounded-full border border-navy bg-accent-orange text-sm font-semibold text-white">
               01
             </span>
-            <div className="relative h-64 sm:h-72">
+            <div className="relative h-72 sm:h-80 lg:h-[22rem]">
               <img
                 src="https://images.unsplash.com/photo-1651313950959-9eeef2477f4b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080"
                 alt="A community group gathering outdoors"
@@ -81,12 +81,12 @@ export default function HomePage() {
               </span>
             </div>
             <div className="grid grid-cols-2 gap-px bg-white/25">
-              <div className="bg-accent-purple p-5">
-                <p className="text-4xl font-semibold leading-none">100%</p>
+              <div className="bg-accent-purple p-5 text-white">
+                <p className="text-4xl font-semibold leading-none text-white">100%</p>
                 <p className="mt-2 text-xs text-white/70">Approved aggregate view</p>
               </div>
-              <div className="bg-accent-purple p-5">
-                <p className="text-4xl font-semibold leading-none">03</p>
+              <div className="bg-accent-purple p-5 text-white">
+                <p className="text-4xl font-semibold leading-none text-white">03</p>
                 <p className="mt-2 text-xs text-white/70">Authorised partner views</p>
               </div>
             </div>
