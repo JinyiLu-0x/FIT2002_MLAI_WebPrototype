@@ -44,8 +44,8 @@ export default function LoginPage() {
 
   return (
     <div className="bg-app lg:h-[calc(100vh-4rem)] lg:overflow-hidden">
-      <div className="mx-auto grid w-full max-w-6xl gap-6 px-5 py-10 sm:px-8 lg:h-full lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:py-5">
-        <figure className="relative min-h-80 overflow-hidden rounded-xl border border-line bg-brand-50 lg:sticky lg:top-0 lg:h-[calc(100vh-6.5rem)] lg:min-h-0">
+      <div className="mx-auto grid w-full max-w-6xl gap-6 px-5 py-10 sm:px-8 lg:h-full lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:py-5">
+        <figure className="relative min-h-80 overflow-hidden rounded-xl border border-line bg-brand-50 lg:h-[44rem] lg:max-h-[calc(100vh-7rem)] lg:min-h-[32rem]">
           <img
             src="https://images.unsplash.com/photo-1651313950959-9eeef2477f4b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080"
             alt="A community group gathering outdoors"

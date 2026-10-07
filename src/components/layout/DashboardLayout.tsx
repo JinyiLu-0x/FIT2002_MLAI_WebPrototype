@@ -235,23 +235,6 @@ function DashboardShell({
           Secure reporting portal · Aggregated information only · No identifiable member records
         </footer>
       </div>
-      <div
-        className="fixed top-1/2 right-0 z-20 hidden -translate-y-1/2 space-y-1 xl:block"
-        aria-hidden="true"
-      >
-        {[
-          "bg-accent-orange",
-          "bg-accent-purple",
-          "bg-accent-blue",
-          "bg-accent-mint",
-          "bg-accent-purple",
-        ].map((colour, index) => (
-          <span
-            key={`${colour}-${index}`}
-            className={`block h-7 w-1.5 rounded-l-full ${colour}`}
-          />
-        ))}
-      </div>
     </div>
   );
 }
