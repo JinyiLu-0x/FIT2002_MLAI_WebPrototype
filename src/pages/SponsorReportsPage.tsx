@@ -16,6 +16,11 @@ interface ApprovedReport {
   metrics: string[];
 }
 
+interface NarrativeSection {
+  heading: string;
+  paragraphs: string[];
+}
+
 const reportsByAccount: Record<string, ApprovedReport[]> = {
   "demo-sponsor-a": [
     {
@@ -178,6 +183,55 @@ const initiativesByAccount: Record<string, string[]> = {
   ],
 };
 
+function buildNarrativeSections(
+  report: ApprovedReport,
+  organisation: string,
+  initiatives: string[],
+  role: "sponsor" | "partner",
+): NarrativeSection[] {
+  const initiativeSummary = initiatives.slice(0, 3).join(", ");
+  const additionalInitiatives = Math.max(initiatives.length - 3, 0);
+  const relationship = role === "sponsor" ? "sponsor-supported" : "grant-supported";
+
+  return [
+    {
+      heading: "Executive overview",
+      paragraphs: [
+        `${report.title} provides ${organisation} with an approved account of ${relationship} delivery during ${report.period}. ${report.summary}`,
+        `The report brings together validated programme information available at the publication date of ${report.published}. It is intended to support governance, partnership review and forward planning without disclosing identifiable participant records.`,
+      ],
+    },
+    {
+      heading: "Delivery during the reporting period",
+      paragraphs: [
+        `Delivery included activity associated with ${initiativeSummary}${additionalInitiatives > 0 ? ` and ${additionalInitiatives} additional approved initiatives` : ""}. Programmes used a mix of facilitated sessions, practical resources and partner-supported engagement to respond to the priorities agreed for the period.`,
+        `Implementation remained focused on accessible participation and consistent reporting. Delivery teams reviewed aggregate attendance and activity records before the information was included in this external report.`,
+      ],
+    },
+    {
+      heading: "Approved outcomes and evidence",
+      paragraphs: [
+        `The approved reporting view records ${report.metrics.join(", ")}. These figures represent aggregate results across the reporting scope and should be read alongside the delivery context for each initiative.`,
+        `Evidence was drawn from approved activity totals, de-identified participation summaries and programme-level outcome records. Results indicate continued progress while recognising that outcomes develop over different timeframes across the funded portfolio.`,
+      ],
+    },
+    {
+      heading: "Learning and interpretation",
+      paragraphs: [
+        `The reporting period reinforced the value of combining quantitative measures with structured delivery feedback. Stronger engagement was generally observed where activities had a clear practical purpose, repeat contact and an established referral or partner network.`,
+        `Some variation between initiatives reflects differences in duration, delivery format and participant pathway rather than performance alone. Future comparisons will continue to use consistent definitions and approved aggregate measures.`,
+      ],
+    },
+    {
+      heading: "Next reporting priorities",
+      paragraphs: [
+        `The next reporting cycle will continue validation of reach, funded activity and approved outcomes. The programme team will also review how progression and longer-term value can be described more consistently across initiatives.`,
+        `Any future publication will remain read-only for external audiences and will contain approved aggregate information only.`,
+      ],
+    },
+  ];
+}
+
 export default function SponsorReportsPage({
   role,
 }: {
@@ -187,6 +241,7 @@ export default function SponsorReportsPage({
   const { period } = useReportingPeriod();
   const [searchParams] = useSearchParams();
   const [selectedReport, setSelectedReport] = useState<ApprovedReport | null>(null);
+  const [reportView, setReportView] = useState<"visual" | "narrative">("visual");
   const [selectedCategories, setSelectedCategories] = useState<ReportCategory[]>([]);
 
   const reports = account ? (reportsByAccount[account.id] ?? []) : [];
@@ -199,6 +254,7 @@ export default function SponsorReportsPage({
     const report = reports.find((item) => item.title === requestedReport);
     if (report) {
       setSelectedReport(report);
+      setReportView("visual");
     }
   }, [requestedReport, account?.id]);
 
@@ -220,6 +276,9 @@ export default function SponsorReportsPage({
     ReportCategory,
     (typeof reportPresentation)[ReportCategory],
   ][];
+  const narrativeSections = selectedReport
+    ? buildNarrativeSections(selectedReport, account.organisation, includedInitiatives, role)
+    : [];
 
   function toggleCategory(category: ReportCategory) {
     setSelectedCategories((current) =>
@@ -227,6 +286,11 @@ export default function SponsorReportsPage({
         ? current.filter((item) => item !== category)
         : [...current, category],
     );
+  }
+
+  function openReport(report: ApprovedReport) {
+    setSelectedReport(report);
+    setReportView("visual");
   }
 
   return (
@@ -347,7 +411,7 @@ export default function SponsorReportsPage({
               <p className="text-xs text-muted">{report.published}</p>
               <button
                 type="button"
-                onClick={() => setSelectedReport(report)}
+                onClick={() => openReport(report)}
                 className="w-full rounded-lg bg-navy px-4 py-2 text-xs font-medium text-white hover:bg-teal sm:w-fit"
               >
                 View report
@@ -375,7 +439,14 @@ export default function SponsorReportsPage({
       </div>
 
       {selectedReport && selectedReportPresentation && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-navy/55 p-3 sm:p-5">
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-navy/55 p-3 sm:p-5"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              setSelectedReport(null);
+            }
+          }}
+        >
           <section
             role="dialog"
             aria-modal="true"
@@ -434,70 +505,165 @@ export default function SponsorReportsPage({
               ))}
             </dl>
 
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold text-ink">Report summary</h3>
-              <p className="mt-2 text-sm leading-6 text-muted">{selectedReport.summary}</p>
-            </div>
-
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              {selectedReport.metrics.map((metric, index) => (
-                <div
-                  key={metric}
-                  className={`relative overflow-hidden rounded-xl border border-line p-4 text-sm font-medium text-ink ${
-                    ["bg-brand-50", "bg-status-pending-bg", "bg-status-progress-bg"][index]
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
+              <div>
+                <p className="text-sm font-semibold text-ink">Report format</p>
+                <p className="mt-1 text-xs text-muted">
+                  Review the visual summary or read the complete narrative.
+                </p>
+              </div>
+              <div className="inline-flex rounded-lg border border-line bg-app p-1">
+                <button
+                  type="button"
+                  onClick={() => setReportView("visual")}
+                  aria-pressed={reportView === "visual"}
+                  className={`rounded-md px-3 py-2 text-xs font-medium transition ${
+                    reportView === "visual"
+                      ? "bg-surface text-ink shadow-sm"
+                      : "text-muted hover:text-ink"
                   }`}
                 >
-                  <span
-                    className={`absolute top-0 right-0 left-0 h-1 ${
-                      ["bg-accent-mint", "bg-accent-orange", "bg-accent-purple"][index]
-                    }`}
-                  />
-                  {metric}
-                </div>
-              ))}
+                  Visual summary
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setReportView("narrative")}
+                  aria-pressed={reportView === "narrative"}
+                  className={`rounded-md px-3 py-2 text-xs font-medium transition ${
+                    reportView === "narrative"
+                      ? "bg-navy text-white shadow-sm"
+                      : "text-muted hover:text-ink"
+                  }`}
+                >
+                  Full narrative
+                </button>
+              </div>
             </div>
 
-            <div className="mt-6 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-              <section className="rounded-xl border border-line bg-app p-5">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-semibold text-ink">Approved outcome trend</h3>
-                  <span className="text-[11px] text-muted">Reporting period</span>
+            {reportView === "visual" ? (
+              <>
+                <div className="mt-6">
+                  <h3 className="text-lg font-semibold text-ink">Report summary</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted">{selectedReport.summary}</p>
                 </div>
-                <div className="mt-5 flex h-36 items-end gap-3">
-                  {["h-[44%]", "h-[62%]", "h-[56%]", "h-[76%]", "h-[70%]", "h-[91%]"].map(
-                    (height, index) => (
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                  {selectedReport.metrics.map((metric, index) => (
+                    <div
+                      key={metric}
+                      className={`relative overflow-hidden rounded-xl border border-line p-4 text-sm font-medium text-ink ${
+                        ["bg-brand-50", "bg-status-pending-bg", "bg-status-progress-bg"][index]
+                      }`}
+                    >
                       <span
-                        key={`${height}-${index}`}
-                        className={`flex-1 rounded-t-md ${height} ${
-                          index % 2 === 0 ? "bg-accent-purple" : "bg-accent-mint"
+                        className={`absolute top-0 right-0 left-0 h-1 ${
+                          ["bg-accent-mint", "bg-accent-orange", "bg-accent-purple"][index]
                         }`}
                       />
-                    ),
-                  )}
-                </div>
-                <div className="mt-2 flex justify-between text-[10px] text-muted">
-                  <span>Period start</span>
-                  <span>Current</span>
-                </div>
-              </section>
-
-              <section className="rounded-xl border border-line bg-surface p-5">
-                <h3 className="text-base font-semibold text-ink">
-                  {role === "sponsor" ? "Sponsor-funded initiatives" : "Approved grant initiatives"}
-                </h3>
-                <div className="mt-3 divide-y divide-line">
-                  {includedInitiatives.map((initiative) => (
-                    <div key={initiative} className="flex items-center justify-between gap-3 py-2.5">
-                      <span className="text-xs font-medium text-ink">{initiative}</span>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-status-approved-bg px-2 py-1 text-[10px] font-medium text-status-approved">
-                        <span className="size-1 rounded-full bg-current" aria-hidden="true" />
-                        Included
-                      </span>
+                      {metric}
                     </div>
                   ))}
                 </div>
-              </section>
-            </div>
+
+                <div className="mt-6 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
+                  <section className="rounded-xl border border-line bg-app p-5">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-base font-semibold text-ink">Approved outcome trend</h3>
+                      <span className="text-[11px] text-muted">Reporting period</span>
+                    </div>
+                    <div className="mt-5 flex h-36 items-end gap-3">
+                      {[
+                        "h-[44%]",
+                        "h-[62%]",
+                        "h-[56%]",
+                        "h-[76%]",
+                        "h-[70%]",
+                        "h-[91%]",
+                      ].map((height, index) => (
+                        <span
+                          key={`${height}-${index}`}
+                          className={`flex-1 rounded-t-md ${height} ${
+                            index % 2 === 0 ? "bg-accent-purple" : "bg-accent-mint"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <div className="mt-2 flex justify-between text-[10px] text-muted">
+                      <span>Period start</span>
+                      <span>Current</span>
+                    </div>
+                  </section>
+
+                  <section className="rounded-xl border border-line bg-surface p-5">
+                    <h3 className="text-base font-semibold text-ink">
+                      {role === "sponsor"
+                        ? "Sponsor-funded initiatives"
+                        : "Approved grant initiatives"}
+                    </h3>
+                    <div className="mt-3 divide-y divide-line">
+                      {includedInitiatives.map((initiative) => (
+                        <div
+                          key={initiative}
+                          className="flex items-center justify-between gap-3 py-2.5"
+                        >
+                          <span className="text-xs font-medium text-ink">{initiative}</span>
+                          <span className="inline-flex items-center gap-1 rounded-full bg-status-approved-bg px-2 py-1 text-[10px] font-medium text-status-approved">
+                            <span className="size-1 rounded-full bg-current" aria-hidden="true" />
+                            Included
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                </div>
+              </>
+            ) : (
+              <article className="mx-auto mt-7 max-w-3xl">
+                <div className="rounded-xl border border-line bg-app p-5 sm:p-6">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-teal">
+                    Full narrative report
+                  </p>
+                  <p className="mt-3 text-base font-medium leading-7 text-ink">
+                    {selectedReport.summary}
+                  </p>
+                  <p className="mt-3 text-xs leading-5 text-muted">
+                    Prepared for {account.organisation} · Approved aggregate information ·{" "}
+                    {selectedReport.period}
+                  </p>
+                </div>
+
+                <div className="mt-7 space-y-8">
+                  {narrativeSections.map((section, index) => (
+                    <section key={section.heading}>
+                      <div className="flex items-start gap-3">
+                        <span
+                          className={`mt-1 block h-6 w-1 shrink-0 rounded-full ${
+                            [
+                              "bg-teal",
+                              "bg-accent-purple",
+                              "bg-accent-orange",
+                              "bg-accent-blue",
+                              "bg-navy",
+                            ][index]
+                          }`}
+                          aria-hidden="true"
+                        />
+                        <div>
+                          <h3 className="text-lg font-semibold text-ink">{section.heading}</h3>
+                          <div className="mt-3 space-y-3">
+                            {section.paragraphs.map((paragraph) => (
+                              <p key={paragraph} className="text-sm leading-7 text-muted">
+                                {paragraph}
+                              </p>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                  ))}
+                </div>
+              </article>
+            )}
 
             <div className="mt-6 rounded-lg border border-line bg-status-published-bg/60 p-4">
               <p className="text-xs font-semibold text-ink">Reporting scope</p>
