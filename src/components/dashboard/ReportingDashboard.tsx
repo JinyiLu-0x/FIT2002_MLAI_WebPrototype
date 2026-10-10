@@ -534,7 +534,7 @@ function InitiativeTable({
                   <td className="px-5 py-4 tabular-nums">{record.outcomes}</td>
                   <td className="px-5 py-4">
                     <span
-                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
+                      className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${
                         record.status === "Active"
                           ? "bg-status-progress-bg text-status-progress"
                           : "bg-status-approved-bg text-status-approved"
@@ -588,7 +588,7 @@ function InitiativeTable({
                   </p>
                 </div>
                 <span
-                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
+                  className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${
                     record.status === "Active"
                       ? "bg-status-progress-bg text-status-progress"
                       : "bg-status-approved-bg text-status-approved"

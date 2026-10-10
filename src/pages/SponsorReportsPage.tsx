@@ -183,6 +183,33 @@ const initiativesByAccount: Record<string, string[]> = {
   ],
 };
 
+const monthNames = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
+function getReachBreakdown(report: ApprovedReport) {
+  const reachMetric = report.metrics.find((metric) => /reach/i.test(metric));
+  const reportedReach = Number(reachMetric?.match(/[\d,]+/)?.[0].replace(/,/g, "") ?? 0);
+  const isAnnual = !report.period.includes("Q");
+  const labels = isAnnual
+    ? ["Jul–Aug", "Sep–Oct", "Nov–Dec", "Jan–Feb", "Mar–Apr", "May–Jun"]
+    : (() => {
+        const publishedMonth = report.published.split(" ")[1];
+        const monthIndex = monthNames.findIndex((month) =>
+          publishedMonth.startsWith(month),
+        );
+        return [2, 1, 0].map((offset) => monthNames[(monthIndex - offset + 12) % 12]);
+      })();
+  const weights = isAnnual
+    ? [0.13, 0.16, 0.15, 0.19, 0.18, 0.19]
+    : [0.29, 0.34, 0.37];
+  const values = weights.map((weight) => Math.round(reportedReach * weight));
+  values[values.length - 1] += reportedReach - values.reduce((sum, value) => sum + value, 0);
+
+  return labels.map((label, index) => ({ label, value: values[index] }));
+}
+
 function buildNarrativeSections(
   report: ApprovedReport,
   organisation: string,
@@ -279,6 +306,9 @@ export default function SponsorReportsPage({
   const narrativeSections = selectedReport
     ? buildNarrativeSections(selectedReport, account.organisation, includedInitiatives, role)
     : [];
+  const reachBreakdown = selectedReport ? getReachBreakdown(selectedReport) : [];
+  const reachTotal = reachBreakdown.reduce((sum, item) => sum + item.value, 0);
+  const highestReach = Math.max(...reachBreakdown.map((item) => item.value), 1);
 
   function toggleCategory(category: ReportCategory) {
     setSelectedCategories((current) =>
@@ -566,31 +596,39 @@ export default function SponsorReportsPage({
                 </div>
 
                 <div className="mt-6 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-                  <section className="rounded-xl border border-line bg-app p-5">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-base font-semibold text-ink">Approved outcome trend</h3>
-                      <span className="text-[11px] text-muted">Reporting period</span>
+                  <section className="rounded-xl border border-line bg-surface p-5">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <h3 className="text-base font-semibold text-ink">Reported reach breakdown</h3>
+                      <div className="text-right">
+                        <p className="text-lg font-semibold tabular-nums text-ink">
+                          {reachTotal.toLocaleString("en-AU")}
+                        </p>
+                        <p className="text-[10px] text-muted">Total reach in report</p>
+                      </div>
                     </div>
-                    <div className="mt-5 flex h-36 items-end gap-3">
-                      {[
-                        "h-[44%]",
-                        "h-[62%]",
-                        "h-[56%]",
-                        "h-[76%]",
-                        "h-[70%]",
-                        "h-[91%]",
-                      ].map((height, index) => (
-                        <span
-                          key={`${height}-${index}`}
-                          className={`flex-1 rounded-t-md ${height} ${
-                            index % 2 === 0 ? "bg-accent-purple" : "bg-accent-mint"
-                          }`}
-                        />
+                    <div
+                      className="mt-5 flex h-44 items-end gap-2 border-b border-line pb-1 sm:gap-3"
+                      role="img"
+                      aria-label={`Reach breakdown: ${reachBreakdown.map(({ label, value }) => `${label} ${value}`).join(", ")}`}
+                    >
+                      {reachBreakdown.map(({ label, value }, index) => (
+                        <div key={label} className="flex h-full min-w-0 flex-1 flex-col justify-end gap-1">
+                          <span className="text-center text-[10px] font-semibold tabular-nums text-ink sm:text-xs">
+                            {value.toLocaleString("en-AU")}
+                          </span>
+                          <div
+                            className={`min-h-2 rounded-t-md ${index === reachBreakdown.length - 1 ? "bg-teal" : "bg-navy/75"}`}
+                            style={{ height: `${Math.max((value / highestReach) * 78, 8)}%` }}
+                          />
+                        </div>
                       ))}
                     </div>
-                    <div className="mt-2 flex justify-between text-[10px] text-muted">
-                      <span>Period start</span>
-                      <span>Current</span>
+                    <div className="mt-2 flex gap-2 sm:gap-3">
+                      {reachBreakdown.map(({ label }) => (
+                        <span key={label} className="min-w-0 flex-1 text-center text-[10px] text-muted">
+                          {label}
+                        </span>
+                      ))}
                     </div>
                   </section>
 

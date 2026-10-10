@@ -14,6 +14,10 @@ const dashboardCopy: Record<UserRole, { title: string; intro: string }> = {
     title: "Internal MLAI Dashboard",
     intro: "Coordinate approved reporting information and prepare sponsor-ready summaries.",
   },
+  approver: {
+    title: "Report Approval Dashboard",
+    intro: "Review sponsor-facing report drafts before they are released.",
+  },
   sponsor: {
     title: "Sponsor Dashboard",
     intro: "Review approved sponsorship reach, activity and impact at an aggregate level.",
