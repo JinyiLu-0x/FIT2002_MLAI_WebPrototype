@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
+import { getActiveDemoAccount } from "../../app/demoAuth";
 import { useReportingPeriod } from "../../app/reportingPeriod";
+import {
+  getInitiativeReport,
+  getLatestReport,
+} from "../../data/approvedReports";
 import {
   getReportCategory,
   reportPresentation,
@@ -17,20 +22,6 @@ import {
 const numberFormatter = new Intl.NumberFormat("en-GB");
 const formatAustralianCurrency = (value: number) =>
   `A$${numberFormatter.format(value)}`;
-
-const relatedReportsByInitiative: Record<string, string> = {
-  "community-ai-labs-25": "Community AI Labs Completion Report",
-  "industry-insight-25": "Industry Insight Sessions Review",
-  "digital-pathways-24": "Annual Sponsor Value Report",
-  "career-connect-24": "Annual Sponsor Value Report",
-  "innovation-grants-25": "Local Innovation Grant Closure Report",
-  "evaluation-capability-25": "Evaluation Capability Grant Review",
-  "regional-skills-24": "2023–24 Grant Outcomes Annual Report",
-  "participation-fund-24": "2023–24 Grant Outcomes Annual Report",
-  "mentoring-access-25": "Mentoring Access Fund Completion Report",
-  "regional-leadership-25": "Regional Leadership Forum Review",
-  "green-skills-24": "Sustainable Careers Annual Review",
-};
 
 function getInitiativeProgress(record: InitiativeRecord) {
   if (record.status === "Completed") {
@@ -788,24 +779,21 @@ export default function ReportingDashboard({
       emptyMessage={emptyMessage}
     />
   );
-  const recentReport =
-    role === "partner"
-      ? "Grant-Supported Outcomes Report"
-      : config.organisation === "Horizon Community Foundation"
-        ? "Q2 Community Impact Summary"
-        : "Northbridge Sponsorship Impact Update";
+  const accountId = getActiveDemoAccount()?.id ?? "";
+  const recentReport = getLatestReport(accountId, period);
   const selectedProgress = selectedInitiative
     ? getInitiativeProgress(selectedInitiative)
     : 0;
-  const selectedReportTitle = selectedInitiative
-    ? relatedReportsByInitiative[selectedInitiative.id]
+  const selectedReport = selectedInitiative
+    ? getInitiativeReport(accountId, selectedInitiative.id, period)
     : undefined;
-  const selectedReportPresentation = selectedReportTitle
-    ? reportPresentation[getReportCategory(selectedReportTitle)]
+  const selectedReportPresentation = selectedReport
+    ? reportPresentation[getReportCategory(selectedReport.title)]
     : null;
   const reportsPath = role === "sponsor" ? "/sponsor/reports" : "/partner/reports";
-  const recentReportPresentation =
-    reportPresentation[getReportCategory(recentReport)];
+  const recentReportPresentation = recentReport
+    ? reportPresentation[getReportCategory(recentReport.title)]
+    : null;
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -921,17 +909,17 @@ export default function ReportingDashboard({
               View all initiatives
             </Link>
           </section>
-          <section
+          {recentReport && recentReportPresentation && <section
             className={`rounded-2xl border p-5 text-white shadow-sm md:col-span-2 xl:col-span-1 ${recentReportPresentation.borderClass} ${recentReportPresentation.accentClass}`}
           >
             <p className="text-xs font-medium text-white/65">
               Recent report · {recentReportPresentation.label}
             </p>
             <h2 className="mt-3 text-xl font-semibold leading-tight text-white">
-              {recentReport}
+              {recentReport.title}
             </h2>
             <p className="mt-2 text-xs leading-5 text-white/65">
-              Approved aggregate reporting · {period}
+              Published {recentReport.published} · {recentReport.period}
             </p>
             <div className="mt-6 rounded-lg bg-white/15 p-3">
               <p className="flex items-center gap-1.5 text-xs font-medium text-white">
@@ -940,12 +928,12 @@ export default function ReportingDashboard({
               </p>
             </div>
             <Link
-              to={role === "sponsor" ? "/sponsor/reports" : "/partner/reports"}
+              to={`${reportsPath}?report=${encodeURIComponent(recentReport.title)}`}
               className="mt-5 inline-flex text-xs font-medium text-white underline underline-offset-4"
             >
-              View approved reports
+              View report
             </Link>
-          </section>
+          </section>}
         </div>
       )}
 
@@ -1078,21 +1066,26 @@ export default function ReportingDashboard({
                 selectedReportPresentation?.borderClass ?? "border-line"
               }`}
             >
-              {selectedReportTitle ? (
+              {selectedReport ? (
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-xs font-semibold text-ink">Related approved report</p>
+                      <p className="text-xs font-semibold text-ink">
+                        {selectedInitiative.status === "Active" ? "Approved progress report" : "Related approved report"}
+                      </p>
                       <span
                         className={`rounded-full px-2 py-1 text-[10px] font-medium ${selectedReportPresentation?.surfaceClass} ${selectedReportPresentation?.textClass}`}
                       >
                         {selectedReportPresentation?.label}
                       </span>
                     </div>
-                    <p className="mt-1 text-xs text-muted">{selectedReportTitle}</p>
+                    <p className="mt-1 text-xs text-muted">{selectedReport.title}</p>
+                    {selectedInitiative.status === "Active" && (
+                      <p className="mt-1 text-xs text-muted">This covers approved results to date; the initiative is still in progress.</p>
+                    )}
                   </div>
                   <Link
-                    to={`${reportsPath}?report=${encodeURIComponent(selectedReportTitle)}`}
+                    to={`${reportsPath}?report=${encodeURIComponent(selectedReport.title)}`}
                     className="inline-flex shrink-0 items-center justify-center rounded-lg bg-navy px-4 py-2.5 text-xs font-medium text-white hover:bg-teal"
                   >
                     View report →
@@ -1102,8 +1095,7 @@ export default function ReportingDashboard({
                 <div>
                   <p className="text-xs font-semibold text-ink">Related report</p>
                   <p className="mt-1 text-xs leading-5 text-muted">
-                    This initiative is still in progress. An approved report will be available
-                    after delivery and validation are complete.
+                    No approved report is available for this initiative yet.
                   </p>
                 </div>
               )}
