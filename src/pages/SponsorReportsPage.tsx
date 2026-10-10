@@ -596,7 +596,7 @@ export default function SponsorReportsPage({
                 </div>
 
                 <div className="mt-6 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-                  <section className="rounded-xl border border-line bg-surface p-5">
+                  <section className="rounded-xl border border-line bg-app p-5">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <h3 className="text-base font-semibold text-ink">Reported reach breakdown</h3>
                       <div className="text-right">
@@ -617,7 +617,7 @@ export default function SponsorReportsPage({
                             {value.toLocaleString("en-AU")}
                           </span>
                           <div
-                            className={`min-h-2 rounded-t-md ${index === reachBreakdown.length - 1 ? "bg-teal" : "bg-navy/75"}`}
+                            className={`min-h-2 rounded-t-md ${index % 2 === 0 ? "bg-accent-purple" : "bg-accent-mint"}`}
                             style={{ height: `${Math.max((value / highestReach) * 78, 8)}%` }}
                           />
                         </div>
