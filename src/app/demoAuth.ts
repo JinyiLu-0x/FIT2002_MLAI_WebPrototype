@@ -15,8 +15,8 @@ export interface DemoAccount {
 }
 
 export const demoPassword = "Demo123!";
-const testSponsorEmail = "test.sponsor@demo.mlai";
-const testSponsorPassword = "Test123!";
+const testSponsorEmail = "test@demo.mlai";
+const testSponsorPassword = "test";
 
 export const demoAccounts: DemoAccount[] = [
   {
