@@ -170,7 +170,7 @@ function DashboardShell({
                 value={period}
                 onChange={(event) => setPeriod(event.target.value)}
                 aria-label="Reporting period"
-                className="h-9 w-[104px] rounded-lg border border-line bg-surface px-2 text-xs font-medium text-ink outline-none focus:border-teal focus:ring-2 focus:ring-brand-100 sm:w-auto sm:px-3 sm:text-sm"
+                className="reporting-select h-9 w-[104px] rounded-lg border border-line bg-surface pl-2 pr-9 text-xs font-medium text-ink outline-none focus:border-teal focus:ring-2 focus:ring-brand-100 sm:w-auto sm:pl-3 sm:pr-10 sm:text-sm"
               >
                 {reportingPeriods.map((item) => (
                   <option key={item}>{item}</option>

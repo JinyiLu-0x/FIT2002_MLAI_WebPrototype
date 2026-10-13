@@ -71,7 +71,7 @@ function SelectField({
         id={id}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-1.5 block h-10 w-full rounded-lg border border-line bg-surface px-3 text-sm font-medium text-ink outline-none transition focus:border-teal focus:ring-2 focus:ring-brand-100"
+        className="reporting-select mt-1.5 block h-10 w-full rounded-lg border border-line bg-surface pl-3 pr-10 text-sm font-medium text-ink outline-none transition focus:border-teal focus:ring-2 focus:ring-brand-100"
       >
         {allLabel && <option value="all">{allLabel}</option>}
         {options.map((option) => (
