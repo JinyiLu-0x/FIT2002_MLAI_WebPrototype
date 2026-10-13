@@ -15,6 +15,8 @@ export interface DemoAccount {
 }
 
 export const demoPassword = "Demo123!";
+const testSponsorEmail = "test.sponsor@demo.mlai";
+const testSponsorPassword = "Test123!";
 
 export const demoAccounts: DemoAccount[] = [
   {
@@ -55,12 +57,20 @@ export const demoSponsorAccounts = demoAccounts.filter(
 const sessionKey = "mlai-demo-session";
 
 export function authenticateDemoAccount(email: string, password: string) {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  if (normalizedEmail === testSponsorEmail) {
+    return password === testSponsorPassword
+      ? demoAccounts.find((account) => account.id === "demo-sponsor-a") ?? null
+      : null;
+  }
+
   if (password !== demoPassword) {
     return null;
   }
 
   return (
-    demoAccounts.find((account) => account.email === email.trim().toLowerCase()) ??
+    demoAccounts.find((account) => account.email === normalizedEmail) ??
     null
   );
 }
