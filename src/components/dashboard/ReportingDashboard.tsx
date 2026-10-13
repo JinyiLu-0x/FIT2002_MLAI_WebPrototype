@@ -84,25 +84,6 @@ function SelectField({
   );
 }
 
-function PrivacyNotice() {
-  return (
-    <aside className="flex items-center gap-2.5 rounded-lg border border-line bg-status-published-bg/60 px-3 py-2">
-      <span
-        className="grid size-5 shrink-0 place-items-center rounded-full bg-accent-blue text-[10px] font-semibold text-white"
-        aria-hidden="true"
-      >
-        i
-      </span>
-      <div>
-        <p className="text-xs font-semibold text-ink">Aggregated data only</p>
-        <p className="mt-0.5 text-[11px] leading-4 text-muted">
-          No names, contact details or identifiable member records.
-        </p>
-      </div>
-    </aside>
-  );
-}
-
 function MetricCard({
   label,
   value,
@@ -797,7 +778,7 @@ export default function ReportingDashboard({
 
   return (
     <div className="mx-auto max-w-7xl">
-      <div className="grid gap-4 xl:grid-cols-[1fr_360px] xl:items-center">
+      <div>
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
             {pageTitle}
@@ -806,7 +787,6 @@ export default function ReportingDashboard({
             {config.description}
           </p>
         </div>
-        <PrivacyNotice />
       </div>
 
       {view !== "overview" && (
