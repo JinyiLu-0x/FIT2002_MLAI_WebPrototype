@@ -1,5 +1,9 @@
 {
+  "title": "MLAI Reporting",
   "description": "This interactive web application provides authorized users and sponsors with secure access to aggregated sponsorship and impact data, enhancing reporting efficiency.",
+  "icons": {
+    "icon": "/favicon.svg"
+  },
   "robots": {
     "index": false
   },
