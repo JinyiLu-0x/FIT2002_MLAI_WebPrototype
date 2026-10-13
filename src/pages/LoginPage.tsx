@@ -25,9 +25,7 @@ export default function LoginPage() {
     const account = authenticateDemoAccount(email, password);
 
     if (!account) {
-      setError(
-        "The email or password is incorrect. Try again or use Explore demo portal.",
-      );
+      setError("Incorrect email or password. Please try again.");
       return;
     }
 
@@ -44,8 +42,8 @@ export default function LoginPage() {
 
   return (
     <div className="bg-app lg:min-h-[calc(100vh-4rem)]">
-      <div className="mx-auto grid w-full max-w-6xl gap-6 px-5 py-10 sm:px-8 lg:min-h-[calc(100vh-4rem)] lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch lg:py-5">
-        <figure className="relative min-h-80 overflow-hidden rounded-xl border border-line bg-brand-50 lg:min-h-[44rem]">
+      <div className="mx-auto grid w-full max-w-6xl gap-6 px-5 py-10 sm:px-8 lg:min-h-[calc(100vh-4rem)] lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:py-5">
+        <figure className="relative min-h-80 overflow-hidden rounded-xl border border-line bg-brand-50 lg:h-[44rem] lg:min-h-0">
           <img
             src="https://images.unsplash.com/photo-1651313950959-9eeef2477f4b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080"
             alt="A community group gathering outdoors"
@@ -66,14 +64,14 @@ export default function LoginPage() {
           </div>
         </figure>
 
-        <section className="rounded-xl border border-line bg-surface p-6 shadow-sm sm:p-8 lg:min-h-[44rem]">
+        <section className="rounded-xl border border-line bg-surface p-6 shadow-sm sm:p-8 lg:h-[44rem]">
           <Link
             to="/"
             className="inline-flex text-sm font-medium text-teal hover:underline"
           >
             ← Back to Home
           </Link>
-          <div className="mt-8">
+          <div className={error ? "mt-6 lg:mt-5" : "mt-8"}>
             <p className="text-sm font-medium text-teal">
               Secure dashboard access
             </p>
@@ -85,7 +83,7 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form className="mt-8 space-y-5" onSubmit={handleSubmit} noValidate>
+          <form className={error ? "mt-6 space-y-4" : "mt-8 space-y-5"} onSubmit={handleSubmit} noValidate>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-ink">
                 Email address
@@ -127,7 +125,7 @@ export default function LoginPage() {
                 role="alert"
                 className="rounded-lg border border-status-error/20 bg-status-error-bg px-4 py-3 text-sm leading-5 text-status-error"
               >
-                <span className="font-semibold">Unable to sign in.</span> {error}
+                {error}
               </div>
             )}
 
@@ -139,7 +137,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-7 border-t border-slate-300 pt-6 text-center">
+          <div className={`${error ? "mt-5 pt-4" : "mt-7 pt-6"} border-t border-slate-300 text-center`}>
             <button
               type="button"
               onClick={() => setShowDemoSelector(true)}
@@ -153,7 +151,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setShowInternalNotice(true)}
-              className="mt-4 text-xs font-medium text-teal hover:underline"
+              className={`${error ? "mt-2" : "mt-4"} text-xs font-medium text-teal hover:underline`}
             >
               Internal access
             </button>
